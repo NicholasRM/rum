@@ -21,15 +21,17 @@ enum Opcode {
 pub struct RumData {
     cpu: RumCpu,
     memory: RumMemory,
-    seg0: Vec<u32>,
 }
 
 impl RumData {
     pub fn load(program: Vec<u32>) -> Self {
-        RumData { cpu: RumCpu::init(), memory: RumMemory::new(), seg0: program }
+        RumData { cpu: RumCpu::init(), memory: RumMemory::init(program) }
     }
 
     pub fn execute(&mut self) {
         todo!();
     }
+    
+    fn output() {todo!()}
+    fn input() {todo!()}
 }
