@@ -1,3 +1,5 @@
+use core::panic;
+
 use crate::rumcpu::RumCpu;
 use crate::rummemory::RumMemory;
 
@@ -19,8 +21,8 @@ enum Opcode {
 }
 
 pub struct RumData {
-    cpu: RumCpu,
-    memory: RumMemory,
+    pub cpu: RumCpu,
+    pub memory: RumMemory,
 }
 
 impl RumData {
@@ -32,6 +34,10 @@ impl RumData {
         todo!();
     }
     
-    fn output() {todo!()}
+    pub fn output(&self, reg_c: usize) {
+        if self.cpu.regs[reg_c] > 255{
+            panic!("Value too big");
+        }
+    }
     fn input() {todo!()}
 }
