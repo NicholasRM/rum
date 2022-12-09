@@ -5,28 +5,25 @@
 This assignment has been completed by Nicholas Mendes and Matthew Kelley.
 Help was received from the sources below:
 
-* Connor Gray: bitpacking, overview of assignment
-* Issac Chen: troubleshooting bitshifts, clarification on assignment steps
-* [rust-lang.com](https://www.rust-lang.org/): understanding `.to_be_bytes()` and `u32::from_be_bytes()`
-* [rust-lang.com User Forum](https://users.rust-lang.org/t/convert-vec-to-array-with-tryfrom/50727): converting a Vec into an Array
+* Noah Daniels: provided some of the code for extracting opcodes and register addresses from binary instructions as well as reading instructions from a file
+* Connor Gray: explained the input instruction
+* [rust-lang.com](https://www.rust-lang.org/): understanding methods for HashMaps and Vectors
+* [rust-lang.com User Forum](https://users.rust-lang.org/t/solved-how-to-fill-a-vec-with-a-value/12314): preloading a vector with a given amount of values
 
-## rpeg Implementation
+## rum Implementation
 
 ### What is Working
 
-* Compression: The program is able to accept `.ppm` files as input and produce compressed `.rpeg` files as output
-* Decompression: The program is able to accept `.rpeg` files as input and produce decompressed `.ppm` files as output
-* Bitpacking: The program is able to insert and extract signed and unsigned integer values into a 64 bit word, along with checking to ensure that
+* Sorting and execution of instructions: The program is able to accept `.ppm` files as input and produce compressed `.rpeg` files as output
+* Reading in instructions from the file: The program is able to accept `.rpeg` files as input and produce decompressed `.ppm` files as output
+* Parsing instruction lines: The program is able to insert and extract signed and unsigned integer values into a 64 bit word, along with checking to ensure that
 a particular value has enough space to be stored correctly
-* Pixel Conversion: The program is able to convert between RGB and Component Video (YPbPr) representations
-* Quantization: The program is able to perform discrete cosine transformation to convert between the luma values of a 2 x 2 pixel block and the
-respective coefficients
 
 ### What is Not Working
 
 * Nothing
 
-## rpeg Architecture
+## rum Architecture
 
 ### Compression
 
@@ -57,6 +54,6 @@ struct and stored in a new `Array2<PixelBlock>`
 
 ## Time Used
 
-Approximately 5 hours was spent conceptually on understanding the problem and the process, deciding how best to implement the solution, and coming up with test cases.
+Approximately 3 hours was spent conceptually on understanding the problem and the process, deciding how best to implement the solution, and coming up with test cases.
 
-Approximately 14 hours was spent writing code, tests, and documentation for the assignment, including manual testing of images and verifying their output.
+Approximately 10 hours was spent writing code, tests, and documentation for the assignment, including manual testing of instruction files and verifying their output.
