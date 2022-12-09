@@ -20,6 +20,12 @@ enum Opcode {
     LoadValue
 }
 
+///
+/// A structure that encapsulates our memory segments and our registers in one container
+/// 
+/// # Members:
+/// * `cpu: RumCpu`: stores the registers and the program counter, and it handles register operations
+/// * `memory: RumMemory`: stores memory segments and handles segment operations
 pub struct RumData {
     pub cpu: RumCpu,
     pub memory: RumMemory,
@@ -30,6 +36,12 @@ impl RumData {
         RumData { cpu: RumCpu::init(), memory: RumMemory::init(program) }
     }
 
+    ///
+    /// It starts a loop and grabs a line of instruction at the begginning of each iteration,
+    /// the opcode is extracted from the instruction and used to match it to a set of code lines,
+    /// which will execute the specified operation, this will continue until it recieves a halt instruction,
+    /// or it is given invalid input, in which case it will panic!
+    /// 
     pub fn execute(&mut self) {
         let mut instruction;//get it from seg0
         loop{
@@ -104,6 +116,12 @@ impl RumData {
         }
     }
     
+    ///
+    /// Takes the value stored in `reg_c` and converts it to an ascii character
+    /// If the value stored in `reg_c` is greater than 255 the program will panic!
+    /// 
+    /// # Arguments:
+    /// * `value`: a value equal to reg_c
     pub fn output(&self, value: u32) {
         if value > 255{
             panic!("Value too big");
@@ -111,6 +129,10 @@ impl RumData {
         print!("{}", char::from_u32(value).unwrap());
     }
 
+    ///
+    /// Takes in a character via standard in and returns it back, 
+    /// if end of file or control d is signaled, a number filled with ones (maximum values of u32) is returned
+    /// 
     pub fn input(&mut self) -> u32 {
         let mut buffer: [u8; 1] = [0];
         let input = io::stdin().read(&mut buffer);
