@@ -22,6 +22,12 @@ enum Opcode {
     LoadValue
 }
 
+///
+/// A structure that encapsulates our memory segments and our registers in one container
+/// 
+/// # Members:
+/// * `cpu: RumCpu`: stores the registers and the program counter, and it handles register operations
+/// * `memory: RumMemory`: stores memory segments and handles segment operations
 pub struct RumData {
     pub cpu: RumCpu,
     pub memory: RumMemory,
@@ -32,6 +38,12 @@ impl RumData {
         RumData { cpu: RumCpu::init(), memory: RumMemory::init(program) }
     }
 
+    ///
+    /// It starts a loop and grabs a line of instruction at the begginning of each iteration,
+    /// the opcode is extracted from the instruction and used to match it to a set of code lines,
+    /// which will execute the specified operation, this will continue until it recieves a halt instruction,
+    /// or it is given invalid input, in which case it will panic!
+    /// 
     pub fn execute(&mut self) {
         let mut instruction;//get it from seg0
         loop{
@@ -103,6 +115,12 @@ impl RumData {
         }
     }
     
+    ///
+    /// Takes the value stored in `reg_c` and converts it to an ascii character
+    /// If the the value stored in `reg_c` is greater than 255 the program will panic!
+    /// 
+    /// # Arguments:
+    /// * `reg_c`: an index to an array, it represents a register address
     pub fn output(&self, reg_c: usize) {
         if self.cpu.regs[reg_c] > 255{
             panic!("Value too big");
@@ -110,13 +128,20 @@ impl RumData {
         print!("{}", self.cpu.regs[reg_c] as u8 as char);
     }
 
+    ///
+    /// Takes in a character via standard in and stores it in `reg_c`, 
+    /// if end of file or control d is signaled, `reg_c` is filled with ones (maximum values of u32)
+    /// 
+    /// # Arguments: 
+    /// * `reg_c`: an index to an array, it represents a register address
+    /// 
     pub fn input(&mut self, reg_c: usize) {
         let mut buffer: [u8; 1] = [0];
         let input = io::stdin().read(&mut buffer);
         match input.unwrap(){
             0 => self.cpu.load_value(reg_c, u32::MAX),
             1 => self.cpu.load_value(reg_c, buffer[0] as u32),
-            _ => panic!("Too many bites in buffer"),
+            _ => panic!("Too many bytes in buffer"),
         }
     }
 }
