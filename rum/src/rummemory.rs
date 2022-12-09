@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 pub struct RumMemory {
-    seg0: Vec<u32>,
-    active_segs: HashMap<u32, Vec<u32>>,
+    pub seg0: Vec<u32>,
+    pub active_segs: HashMap<u32, Vec<u32>>,
 }
 
 impl RumMemory {

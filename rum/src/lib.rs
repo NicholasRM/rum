@@ -194,8 +194,6 @@ mod cpu_test{
 
 #[cfg(test)]
 mod output_test{
-    use std::collections::HashMap;
-
     use crate::rumdata::RumData;
     use crate::rumcpu::RumCpu;
     use crate::rummemory::RumMemory;
@@ -203,15 +201,62 @@ mod output_test{
     #[test]
     #[should_panic]
     fn test_output_panic(){
-        let mut cpu:RumCpu = RumCpu{
+        let cpu:RumCpu = RumCpu{
             pc: 0,
             regs: [253, 87, 4, u32::MAX, 6969696, 12, 0, 234567]
         };
-        let mut rumdata:RumData = RumData{
+        let rumdata:RumData = RumData{
             cpu: cpu,
             memory: RumMemory::init(vec![0])
         };
         rumdata.output(7);
     }
 
+}
+
+#[cfg(test)]
+mod segments_test {
+    use std::collections::HashMap;
+
+    use crate::rummemory::RumMemory;
+
+    impl RumMemory {
+        pub fn custom_init(segments: HashMap<u32, Vec<u32>>, seg0: Vec<u32>) -> Self {
+            RumMemory {seg0, active_segs: segments}
+        }
+    }
+
+    #[test]
+    fn test_get_val(){
+        let mut example = RumMemory::custom_init(
+            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
+            vec![0,0,0,100]
+        );
+
+        assert_eq!(example.get_seg_val(0, 3), 100);
+        assert_eq!(example.get_seg_val(1, 0), 69);
+        assert_eq!(example.get_seg_val(2, 1), 32);
+    }
+
+    #[test]
+    #[should_panic]
+    fn seg_val_oob() {
+        let mut example = RumMemory::custom_init(
+            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
+            vec![0,0,0,100]
+        );
+        example.get_seg_val(0, 4);
+    }
+
+    #[test]
+    #[should_panic]
+    fn seg_val_missing() {
+        let mut example = RumMemory::custom_init(
+            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
+            vec![0,0,0,100]
+        );
+        example.get_seg_val(4, 0);
+    }
+
+    
 }

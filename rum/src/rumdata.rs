@@ -1,7 +1,7 @@
 use core::panic;
 
-use crate::ruminfoextr::{get_three_regs, get_one_reg, get_load_reg, get_value};
-use crate::{rumcpu::RumCpu, ruminfoextr::get_opcode};
+use crate::ruminfoextr::{get_opcode, get_three_regs, get_one_reg, get_load_reg, get_value, get_two_regs};
+use crate::rumcpu::RumCpu;
 use crate::rummemory::RumMemory;
 use std::io::{Read, self};
 
@@ -33,39 +33,50 @@ impl RumData {
     }
 
     pub fn execute(&mut self) {
-        let mut instruction = 0;//get it from seg0
+        let mut instruction;//get it from seg0
         loop{
             instruction = self.memory.get_seg_val(0, self.cpu.pc);
             match get_opcode(instruction){
                 0 => {
                     let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
-                    self.cpu.cmov(reg_a, reg_b, reg_c)}
+                    self.cpu.cmov(reg_a, reg_b, reg_c)
+                }
                 1 => {
-
+                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    let value = self.memory.get_seg_val(reg_b as u32, reg_c);
+                    self.cpu.load_value(reg_a, value);
                 }
                 2 => {
-
+                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    let value = self.cpu.fetch_reg(reg_c);
+                    self.memory.store_seg_val(reg_a as u32, reg_b, value);
                 }
                 3 => {
                     let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
-                    self.cpu.add(reg_a, reg_b, reg_c)}
+                    self.cpu.add(reg_a, reg_b, reg_c)
+                }
                 4 => {
                     let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
-                    self.cpu.mul(reg_a, reg_b, reg_c)}
+                    self.cpu.mul(reg_a, reg_b, reg_c)
+                }
                 5 => {
                     let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
-                    self.cpu.div(reg_a, reg_b, reg_c)}
+                    self.cpu.div(reg_a, reg_b, reg_c)
+                }
                 6 => {
                     let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
-                    self.cpu.nand(reg_a, reg_b, reg_c)}
+                    self.cpu.nand(reg_a, reg_b, reg_c)
+                }
                 7 => {
                     std::process::exit(0);
                 }
                 8 => {
-
+                    let (reg_b, reg_c) = get_two_regs(instruction);
+                    self.memory.map(reg_b as u32, reg_c);
                 }
                 9 => {
-
+                    let reg_c = get_one_reg(instruction);
+                    self.memory.unmap(reg_c as u32);
                 }
                 10 => {
                     let reg_c = get_one_reg(instruction);
@@ -76,7 +87,9 @@ impl RumData {
                     self.input(reg_c);
                 }
                 12 => {
-
+                    let (reg_b, reg_c) = get_two_regs(instruction);
+                    self.memory.load_program(reg_b as u32, reg_c);
+                    self.cpu.pc = reg_c;
                 }
                 13 => {
                     let load_reg = get_load_reg(instruction);
