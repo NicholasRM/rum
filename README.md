@@ -14,32 +14,29 @@ Help was received from the sources below:
 
 ### What is Working
 
-* Sorting and execution of instructions: The program is able to accept `.ppm` files as input and produce compressed `.rpeg` files as output
-* Reading in instructions from the file: The program is able to accept `.rpeg` files as input and produce decompressed `.ppm` files as output
-* Parsing instruction lines: The program is able to insert and extract signed and unsigned integer values into a 64 bit word, along with checking to ensure that
-a particular value has enough space to be stored correctly
+* Sorting and execution of instructions: 
+* Reading in instructions from the file: 
+* Parsing instruction lines: 
 
 ### What is Not Working
 
 * Nothing
 
+### Design Alterations
+
+ - We originally had a module for our instructions and a module for our CPU abstractions, we then split them into a data structure that stored registers and operations that handled registers, in one module and a data structure for storing memory segments and operations that handle memory segments
+
 ## rum Architecture
 
-### Compression
+### rumcpu
 
-* The program reads in a file from either the command line or from standard input
-* The image is read into an `RgbImage`, and the dimensions are rounded down to the nearest even number (e.g. 37 -> 36, but 44 -> 44)
-* Manually looping over each of the indicies stepping by 2, the top left corner and the other pixels in the block are stored into a `PixelBlock`
-struct and stored in a new `Array2<PixelBlock>`
-* The Array2 of grouped pixels, the trimmed and halved dimensions, and the denominator of the image are produced
-* The contents of of Array2 are looped over. For every `PixelBlock`, the Rgb pixels are extracted out into a Vec.
-* For every Rgb, they are converted into a floating point representation of Rgb, and then into Component Video representation
-* The Pb and Pr chroma values are then averaged together, and each of the luma are stored
-* Each of the luma are turned into the cosine coefficients using discrete cosine transformation
-* Each of the a, b, c, d, Pb, and Pr are turned into the appropriate integer representation and then stored into a 32 bit code word.
-* Each of the 32 bit code words generated are then turned into 4 bytes in Big-Endian order before being set to write the image to standard out
 
-### Decompression
+
+### rumdata
+
+### ruminfoextr
+
+### rumload
 
 * The program reads in a file from either the command line or from standard input
 * The image is read and extracted into a `Vec<[u8; 4]>` and the associated dimensions
@@ -51,6 +48,8 @@ struct and stored in a new `Array2<PixelBlock>`
 * Each of the pixel coordinates is turned into a row major index and the Vec is then sorted by that index before it is removed.
 * A new `RgbImage` is created using the new `Vec`, the extracted dimensions, and a denominator of 255
 * The new image is written to standard output
+
+### rummemory
 
 ## Time Used
 
