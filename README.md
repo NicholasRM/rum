@@ -7,6 +7,7 @@ Help was received from the sources below:
 
 * Noah Daniels: provided some of the code for extracting opcodes and register addresses from binary instructions as well as reading instructions from a file
 * Connor Gray: explained the input instruction
+* Will Mann: explanation of memory segments
 * [rust-lang.com](https://www.rust-lang.org/): understanding methods for HashMaps and Vectors
 * [rust-lang.com User Forum](https://users.rust-lang.org/t/solved-how-to-fill-a-vec-with-a-value/12314): preloading a vector with a given amount of values
 
@@ -37,8 +38,10 @@ The rumcpu module holds the data structure RumCpu which abstracts the CPU into a
 The rumdata module stores the RumData structure which encapuslates the RumCpu and RumMemory structs, the RumData structure gives access to the most information within the module because the methods here are higher level such as our input and output methods and our execute method, which pulls an instruction from the vector, increments the program counter, matches the instruction to an operation based on its opcode and loops until the halt operation is run.
 
 ### ruminfoextr
+The ruminfoextr module uses global instances of the field struct, (which stores the lsb and width of a binary field), to abstract fields that would need to get pulled from a binary instruction, like registers, opcodes, and values. We also store our retrieval methods that extract register addresses, opcodes, and values from the instructions because they need access to the global constant instances of field so they know how long and where the binary fields they are returning are.
 
 ### rumload
+rumload holds 
 
 ### rummemory
 
