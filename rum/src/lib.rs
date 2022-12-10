@@ -209,28 +209,27 @@ mod output_test{
             cpu: cpu,
             memory: RumMemory::init(vec![0])
         };
-        rumdata.output(7);
+        rumdata.output(765);
     }
 
 }
 
 #[cfg(test)]
 mod segments_test {
-    use std::collections::HashMap;
 
     use crate::rummemory::RumMemory;
 
     impl RumMemory {
-        pub fn custom_init(segments: HashMap<u32, Vec<u32>>, seg0: Vec<u32>) -> Self {
-            RumMemory {seg0, active_segs: segments}
+        pub fn custom_init(segs: Vec<Vec<u32>>, available_segs: Vec<u32>) -> Self {
+            RumMemory {segs, available_segs}
         }
     }
 
     #[test]
     fn test_get_val(){
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         assert_eq!(example.get_seg_val(0, 3), 100);
@@ -242,8 +241,8 @@ mod segments_test {
     #[should_panic]
     fn seg_val_oob() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
         example.get_seg_val(0, 4);
     }
@@ -252,8 +251,8 @@ mod segments_test {
     #[should_panic]
     fn seg_val_missing() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
         example.get_seg_val(4, 0);
     }
@@ -261,8 +260,8 @@ mod segments_test {
     #[test]
     fn test_store_val(){
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         example.store_seg_val(0, 0, 1);
@@ -278,8 +277,8 @@ mod segments_test {
     #[should_panic]
     fn store_val_oob() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
         example.store_seg_val(0, 4, 69);
     }
@@ -288,118 +287,97 @@ mod segments_test {
     #[should_panic]
     fn store_val_missing() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
         example.store_seg_val(4, 0, 8);
     }
 
     #[test]
-    fn test_map_seg(){
+    fn map_new_seg(){
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
-
-        example.map_seg(3, 4);
-        example.map_seg(68, 90000);
-        example.map_seg(777777, 0);
-
-        let first = example.active_segs.get(&3).unwrap();
-        let second = example.active_segs.get(&68).unwrap();
-        let third = example.active_segs.get(&777777).unwrap();
-
-        assert!(example.active_segs.contains_key(&3) && first.len() == 4);
-        assert!(example.active_segs.contains_key(&68) && second.len() == 90000);
-        assert!(example.active_segs.contains_key(&777777) && third.len() == 0);   
+        let ptr = example.map_seg(4);
+        assert!(ptr == 3 && example.segs[ptr].len() == 4);
     }
 
     #[test]
-    #[should_panic]
-    fn cant_map_seg0() {
+    fn remap_old_seg() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![], vec![75, 32, 0, 0], vec![]],
+            vec![1, 3]
         );
 
-        example.map_seg(0, 78);
-    }
-
-    #[test]
-    #[should_panic]
-    fn cant_remap_seg() {
-        let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
-        );
-
-        example.map_seg(1, 5);
+        let ptr = example.map_seg(4);
+        assert!(ptr == 3 && example.segs[ptr].len() == 4);
     }
 
     #[test]
     fn test_unmap_seg(){
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         example.unmap_seg(1);
 
-        assert!(!example.active_segs.contains_key(&1));
-    }
-
-    #[test]
-    #[should_panic]
-    fn cant_unmap_seg0() {
-        let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
-        );
-
-        example.unmap_seg(0);
+        assert!(example.segs[1].is_empty());
     }
 
     #[test]
     #[should_panic]
     fn cant_unmap_missing_seg() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         example.unmap_seg(5);
     }
 
     #[test]
+    #[should_panic]
+    fn cant_unmap_unmapped_seg() {
+        let mut example = RumMemory::custom_init(
+            vec![vec![0,0,0,100], vec![], vec![75, 32, 0, 0]],
+            vec![1]
+        );
+
+        example.unmap_seg(1);
+    }
+
+    #[test]
     fn test_jump(){
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         example.load_program(0, 3);
 
-        assert_eq!(example.seg0, vec![0,0,0,100]);
+        assert_eq!(example.segs[0], vec![0,0,0,100]);
     }
 
     #[test]
     fn test_load_program() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         example.load_program(1, 0);
 
-        assert_eq!(example.seg0, vec![69, 0, 0, 42]);
+        assert_eq!(example.segs[0], vec![69, 0, 0, 42]);
     }
 
     #[test]
     #[should_panic]
     fn cant_load_oob() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         example.load_program(2, 9);
@@ -409,8 +387,8 @@ mod segments_test {
     #[should_panic]
     fn cant_load_missing_segment() {
         let mut example = RumMemory::custom_init(
-            HashMap::from([(1, vec![69, 0, 0, 42]),(2, vec![75, 32, 0, 0])]),
-            vec![0,0,0,100]
+            vec![vec![0,0,0,100], vec![69, 0, 0, 42], vec![75, 32, 0, 0]],
+            Vec::new()
         );
 
         example.load_program(9, 0);
