@@ -49,6 +49,8 @@ rumload holds
 
 ## Time Used
 
-Approximately 3 hours was spent conceptually on understanding the problem and the process, deciding how best to implement the solution, and coming up with test cases.
+Approximately 2 hours were spent analyzing the assignemnt
 
-Approximately 10 hours was spent writing code, tests, and documentation for the assignment, including manual testing of instruction files and verifying their output.
+Approximately 3 hours were spent designing the preparing our design for the program
+
+Approximately 12 hours was spent writing code, tests, and documentation for the assignment, including manual testing of instruction files and verifying their output.
