@@ -41,16 +41,18 @@ The rumdata module stores the RumData structure which encapuslates the RumCpu an
 The ruminfoextr module uses global instances of the field struct, (which stores the lsb and width of a binary field), to abstract fields that would need to get pulled from a binary instruction, like registers, opcodes, and values. We also store our retrieval methods that extract register addresses, opcodes, and values from the instructions because they need access to the global constant instances of field so they know how long and where the binary fields they are returning are.
 
 ### rumload
-rumload holds 
+The rumload module holds a single function `parse_input` that accepts an optional string slice representing the input file of the program. This file is then opened and its contents are extracted into a `Vec<u32>`, which is used by the UM. If at any point the function fails to find the file or is unable to read the contents properly, the code may panic.
 
 ### rummemory
+The rummemory module contains the `RumMemory` struct, which represents the memory of the UM into two pieces: A `Vec<Vec<u32>>` representing all currently mapped segments and a `Vec<u32>` representing any recently unmapped segments. It also holds methods to load and store values from and into segments, map new and unmap old memory segments, and load programs from memory into segment 0. These methods are contained in this module are together since they would need direct access to the underlying memory of the UM.
 
 ## Program Timing
+4 separate runs of `midmark.um` were performed. `midmark.um` was reported at running 85,070,522 instructions, and the average of the 4 tests was 47.571 seconds. If this is extrapolated into 50 million instructions, then the expected time to complete those instructions is roughly 27.960 seconds.
 
 ## Time Used
 
 Approximately 2 hours were spent analyzing the assignemnt
 
-Approximately 3 hours were spent designing the preparing our design for the program
+Approximately 3 hours were spent preparing our design for the program
 
 Approximately 12 hours was spent writing code, tests, and documentation for the assignment, including manual testing of instruction files and verifying their output.
