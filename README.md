@@ -46,6 +46,9 @@ The rumload module holds a single function `parse_input` that accepts an optiona
 ### rummemory
 The rummemory module contains the `RumMemory` struct, which represents the memory of the UM into two pieces: A `Vec<Vec<u32>>` representing all currently mapped segments and a `Vec<u32>` representing any recently unmapped segments. It also holds methods to load and store values from and into segments, map new and unmap old memory segments, and load programs from memory into segment 0. These methods are contained in this module are together since they would need direct access to the underlying memory of the UM.
 
+## Invariants
+When accessing a segment from the memory, we are operating under the assumption that, at any stage during the execution, the number of segments that have been mapped is always equal to the length of `segs`. This includes both the segments that are currently active as well as the previously active segments that have been unmapped.  This is to say that the sum of currently mapped segments and the previously mapped segments is equal to the length of `segs`.
+
 ## Program Timing
 4 separate runs of `midmark.um` were performed. `midmark.um` was reported at running 85,070,522 instructions, and the average of the 4 tests was 47.571 seconds. If this is extrapolated into 50 million instructions, then the expected time to complete those instructions is roughly 27.960 seconds.
 
