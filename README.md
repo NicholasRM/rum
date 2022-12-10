@@ -14,9 +14,9 @@ Help was received from the sources below:
 
 ### What is Working
 
-* Sorting and execution of instructions: 
-* Reading in instructions from the file: 
-* Parsing instruction lines: 
+* Sorting and execution of instructions: We have all 13 operations working and an execute function which loops throught the list of instructions and calls the correct operation based on its opcode
+* Reading in instructions from the file: we have a function that reads in a um file and returns a vector of the instructions as u32s
+* Parsing instruction lines: we created methods that can grab opcodes, registers and values from binary instructions
 
 ### What is Not Working
 
@@ -26,30 +26,23 @@ Help was received from the sources below:
 
  - We originally had a module for our instructions and a module for our CPU abstractions, we then split them into a data structure that stored registers and operations that handled registers, in one module and a data structure for storing memory segments and operations that handle memory segments
 
+ - we originally used a vector to represent segment 0, and a HashMap of vectors to represent the other segments, but we realized that we misunderstood how mapping segments worked and switched to a vector of vectors to represent memory segments
+
 ## rum Architecture
 
 ### rumcpu
-
-
+The rumcpu module holds the data structure RumCpu which abstracts the CPU int a usize variable as program counter an array of u32s with a length of 8 to represent our 8 registers, this module also holds the operations which handle registers such as add, NAND, load, etc, these methods are grouped with RumCpu because they need access to the registers to pull from and push into.
 
 ### rumdata
+The rumdata module stores the RumData structure which encapuslates the RumCpu and RumMemory structs, the RumData structure gives access to the most information within the module because the methods here are higher level such as our input and output methods and our execute method, which pulls an instruction from the vector, increments the program counter, matches the instruction to an operation based on its opcode and loops until the halt operation is run.
 
 ### ruminfoextr
 
 ### rumload
 
-* The program reads in a file from either the command line or from standard input
-* The image is read and extracted into a `Vec<[u8; 4]>` and the associated dimensions
-* Each of the arrays in the Vec are turned into 32 bit code words, and each word is assigned an appropriately scaled position in row major order
-* All of the values stored in the 32 bit words (a, b, c, d, Pb, Pr) are extracted out and turned into their floating point representations
-* a, b, c, and d are turned back into the luma of the individual pixels (y1, y2, y3, y4)
-* Each of the luma, along with the Pb and Pr chroma, are turned back into floating point RGB, and then into `Rgb` pixels, ensuring that each of the floating point RGB values is on a scale from 0.0 - 1.0
-* These pixels are then packed into a group and then unpacked to apply the coordinates to them, and all of the pixels are collected into a new `Vec`.
-* Each of the pixel coordinates is turned into a row major index and the Vec is then sorted by that index before it is removed.
-* A new `RgbImage` is created using the new `Vec`, the extracted dimensions, and a denominator of 255
-* The new image is written to standard output
-
 ### rummemory
+
+## Program Timing
 
 ## Time Used
 
