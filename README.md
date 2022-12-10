@@ -7,6 +7,7 @@ Help was received from the sources below:
 
 * Noah Daniels: provided some of the code for extracting opcodes and register addresses from binary instructions as well as reading instructions from a file
 * Connor Gray: explained the input instruction
+* Will Mann: explanation of memory segments
 * [rust-lang.com](https://www.rust-lang.org/): understanding methods for HashMaps and Vectors
 * [rust-lang.com User Forum](https://users.rust-lang.org/t/solved-how-to-fill-a-vec-with-a-value/12314): preloading a vector with a given amount of values
 
@@ -14,46 +15,44 @@ Help was received from the sources below:
 
 ### What is Working
 
-* Sorting and execution of instructions: The program is able to accept `.ppm` files as input and produce compressed `.rpeg` files as output
-* Reading in instructions from the file: The program is able to accept `.rpeg` files as input and produce decompressed `.ppm` files as output
-* Parsing instruction lines: The program is able to insert and extract signed and unsigned integer values into a 64 bit word, along with checking to ensure that
-a particular value has enough space to be stored correctly
+* Sorting and execution of instructions: We have all 14 operations working and an execute function which loops throught the list of instructions and calls the correct operation based on its opcode
+* Reading in instructions from the file: we have a function that reads in a um file and returns a vector of the instructions as u32s
+* Parsing instruction lines: we created methods that can grab opcodes, registers and values from binary instructions
 
 ### What is Not Working
 
-* Nothing
+* Running `cat.um` will produce the correct result, but the program requires EOF to be signaled twice. We are not currently sure what is causing this to happen.
+
+### Design Alterations
+
+ - We originally had a module for our instructions and a module for our CPU abstractions, we then split them into a data structure that stored registers and operations that handled registers, in one module and a data structure for storing memory segments and operations that handle memory segments
+
+ - We originally used a vector to represent segment 0, and a HashMap of vectors to represent the other segments, but we realized that we misunderstood how mapping segments worked and switched to a vector of vectors to represent memory segments
 
 ## rum Architecture
 
-### Compression
+### rumcpu
+The rumcpu module holds the data structure RumCpu which abstracts the CPU into a usize variable as program counter an array of u32s with a length of 8 to represent our 8 registers, this module also holds the operations which handle registers such as add, NAND, load, etc, these methods are grouped with RumCpu because they need access to the registers to pull from and push into.
 
-* The program reads in a file from either the command line or from standard input
-* The image is read into an `RgbImage`, and the dimensions are rounded down to the nearest even number (e.g. 37 -> 36, but 44 -> 44)
-* Manually looping over each of the indicies stepping by 2, the top left corner and the other pixels in the block are stored into a `PixelBlock`
-struct and stored in a new `Array2<PixelBlock>`
-* The Array2 of grouped pixels, the trimmed and halved dimensions, and the denominator of the image are produced
-* The contents of of Array2 are looped over. For every `PixelBlock`, the Rgb pixels are extracted out into a Vec.
-* For every Rgb, they are converted into a floating point representation of Rgb, and then into Component Video representation
-* The Pb and Pr chroma values are then averaged together, and each of the luma are stored
-* Each of the luma are turned into the cosine coefficients using discrete cosine transformation
-* Each of the a, b, c, d, Pb, and Pr are turned into the appropriate integer representation and then stored into a 32 bit code word.
-* Each of the 32 bit code words generated are then turned into 4 bytes in Big-Endian order before being set to write the image to standard out
+### rumdata
+The rumdata module stores the RumData structure which encapuslates the RumCpu and RumMemory structs, the RumData structure gives access to the most information within the module because the methods here are higher level such as our input and output methods and our execute method, which pulls an instruction from the vector, increments the program counter, matches the instruction to an operation based on its opcode and loops until the halt operation is run.
 
-### Decompression
+### ruminfoextr
+The ruminfoextr module uses global instances of the field struct, (which stores the lsb and width of a binary field), to abstract fields that would need to get pulled from a binary instruction, like registers, opcodes, and values. We also store our retrieval methods that extract register addresses, opcodes, and values from the instructions because they need access to the global constant instances of field so they know how long and where the binary fields they are returning are.
 
-* The program reads in a file from either the command line or from standard input
-* The image is read and extracted into a `Vec<[u8; 4]>` and the associated dimensions
-* Each of the arrays in the Vec are turned into 32 bit code words, and each word is assigned an appropriately scaled position in row major order
-* All of the values stored in the 32 bit words (a, b, c, d, Pb, Pr) are extracted out and turned into their floating point representations
-* a, b, c, and d are turned back into the luma of the individual pixels (y1, y2, y3, y4)
-* Each of the luma, along with the Pb and Pr chroma, are turned back into floating point RGB, and then into `Rgb` pixels, ensuring that each of the floating point RGB values is on a scale from 0.0 - 1.0
-* These pixels are then packed into a group and then unpacked to apply the coordinates to them, and all of the pixels are collected into a new `Vec`.
-* Each of the pixel coordinates is turned into a row major index and the Vec is then sorted by that index before it is removed.
-* A new `RgbImage` is created using the new `Vec`, the extracted dimensions, and a denominator of 255
-* The new image is written to standard output
+### rumload
+The rumload module holds a single function `parse_input` that accepts an optional string slice representing the input file of the program. This file is then opened and its contents are extracted into a `Vec<u32>`, which is used by the UM. If at any point the function fails to find the file or is unable to read the contents properly, the code may panic.
+
+### rummemory
+The rummemory module contains the `RumMemory` struct, which represents the memory of the UM into two pieces: A `Vec<Vec<u32>>` representing all currently mapped segments and a `Vec<u32>` representing any recently unmapped segments. It also holds methods to load and store values from and into segments, map new and unmap old memory segments, and load programs from memory into segment 0. These methods are contained in this module are together since they would need direct access to the underlying memory of the UM.
+
+## Program Timing
+4 separate runs of `midmark.um` were performed. `midmark.um` was reported at running 85,070,522 instructions, and the average of the 4 tests was 47.571 seconds. If this is extrapolated into 50 million instructions, then the expected time to complete those instructions is roughly 27.960 seconds.
 
 ## Time Used
 
-Approximately 3 hours was spent conceptually on understanding the problem and the process, deciding how best to implement the solution, and coming up with test cases.
+Approximately 2 hours were spent analyzing the assignemnt
 
-Approximately 10 hours was spent writing code, tests, and documentation for the assignment, including manual testing of instruction files and verifying their output.
+Approximately 3 hours were spent preparing our design for the program
+
+Approximately 12 hours was spent writing code, tests, and documentation for the assignment, including manual testing of instruction files and verifying their output.
