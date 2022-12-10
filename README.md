@@ -14,7 +14,7 @@ Help was received from the sources below:
 
 ### What is Working
 
-* Sorting and execution of instructions: We have all 13 operations working and an execute function which loops throught the list of instructions and calls the correct operation based on its opcode
+* Sorting and execution of instructions: We have all 14 operations working and an execute function which loops throught the list of instructions and calls the correct operation based on its opcode
 * Reading in instructions from the file: we have a function that reads in a um file and returns a vector of the instructions as u32s
 * Parsing instruction lines: we created methods that can grab opcodes, registers and values from binary instructions
 
@@ -26,12 +26,12 @@ Help was received from the sources below:
 
  - We originally had a module for our instructions and a module for our CPU abstractions, we then split them into a data structure that stored registers and operations that handled registers, in one module and a data structure for storing memory segments and operations that handle memory segments
 
- - we originally used a vector to represent segment 0, and a HashMap of vectors to represent the other segments, but we realized that we misunderstood how mapping segments worked and switched to a vector of vectors to represent memory segments
+ - We originally used a vector to represent segment 0, and a HashMap of vectors to represent the other segments, but we realized that we misunderstood how mapping segments worked and switched to a vector of vectors to represent memory segments
 
 ## rum Architecture
 
 ### rumcpu
-The rumcpu module holds the data structure RumCpu which abstracts the CPU int a usize variable as program counter an array of u32s with a length of 8 to represent our 8 registers, this module also holds the operations which handle registers such as add, NAND, load, etc, these methods are grouped with RumCpu because they need access to the registers to pull from and push into.
+The rumcpu module holds the data structure RumCpu which abstracts the CPU into a usize variable as program counter an array of u32s with a length of 8 to represent our 8 registers, this module also holds the operations which handle registers such as add, NAND, load, etc, these methods are grouped with RumCpu because they need access to the registers to pull from and push into.
 
 ### rumdata
 The rumdata module stores the RumData structure which encapuslates the RumCpu and RumMemory structs, the RumData structure gives access to the most information within the module because the methods here are higher level such as our input and output methods and our execute method, which pulls an instruction from the vector, increments the program counter, matches the instruction to an operation based on its opcode and loops until the halt operation is run.
