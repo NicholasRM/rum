@@ -21,7 +21,7 @@ Help was received from the sources below:
 
 ### What is Not Working
 
-* Nothing
+* Running `cat.um` will produce the correct result, but the program requires EOF to be signaled twice. We are not currently sure what is causing this to happen.
 
 ### Design Alterations
 
