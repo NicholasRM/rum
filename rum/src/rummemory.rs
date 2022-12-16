@@ -81,12 +81,12 @@ impl RumMemory {
     /// # Arguments:
     /// * `segnum`: The segment being unmapped, representing a key in `active_segs`.
     pub fn unmap_seg(&mut self, segnum: usize) {
-        if segnum >= self.segs.len() || self.available_segs.contains(&(segnum as u32)) {
-            panic!("Attempted to unmap $m[{segnum}], which is not active");
-        } else {
+        if !self.segs[segnum].is_empty(){
             self.segs[segnum].clear();
             self.available_segs.push(segnum as u32);
+            return;
         }
+        panic!("segment is not empty")
     }
 
     /// Function to load a program from memory. This function will panic iff the segment being loaded
@@ -101,7 +101,7 @@ impl RumMemory {
     /// * `segnum`: The segment being loaded into `seg0`, representing a key in `active_segs`.
     /// * `offset`: The offset that the program counter will be set to. This is used only to compare the new length of `seg0`
     pub fn load_program(&mut self, segnum: usize, offset: usize) {
-        if segnum >= self.segs.len() || self.available_segs.contains(&(segnum as u32)) {
+        if self.segs[segnum].is_empty() {
             panic!("Attempted to load $m[{segnum}], which is not active");
         }
 
