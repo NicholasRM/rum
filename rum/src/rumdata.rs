@@ -44,78 +44,81 @@ impl RumData {
     /// 
     pub fn execute(&mut self) {
         let mut instruction;//get it from seg0
+        let (mut reg_a, mut reg_b, mut reg_c, mut load_reg);
+        let (mut segment, mut offset, mut value);
+        let (mut size, );
         loop{
             instruction = self.memory.get_seg_val(0, self.cpu.pc);
             self.cpu.pc += 1;
             match get_opcode(instruction){
                 o if o == Opcode::CMov as u32 => {
-                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    (reg_a, reg_b, reg_c) = get_three_regs(instruction);
                     self.cpu.cmov(reg_a, reg_b, reg_c)
                 }
                 o if o == Opcode::SegLoad as u32 => {
-                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
-                    let segment = self.cpu.fetch_reg(reg_b) as usize;
-                    let offset = self.cpu.fetch_reg(reg_c) as usize;
-                    let value = self.memory.get_seg_val(segment, offset);
+                    (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    segment = self.cpu.fetch_reg(reg_b) as usize;
+                    offset = self.cpu.fetch_reg(reg_c) as usize;
+                    value = self.memory.get_seg_val(segment, offset);
                     self.cpu.load_value(reg_a, value);
                 }
                 o if o == Opcode::SegStore as u32 => {
-                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
-                    let segment = self.cpu.fetch_reg(reg_a) as usize;
-                    let offset = self.cpu.fetch_reg(reg_b) as usize;
-                    let value = self.cpu.fetch_reg(reg_c);
+                    (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    segment = self.cpu.fetch_reg(reg_a) as usize;
+                    offset = self.cpu.fetch_reg(reg_b) as usize;
+                    value = self.cpu.fetch_reg(reg_c);
                     self.memory.store_seg_val(segment, offset, value);
                 }
                 o if o == Opcode::Add as u32 => {
-                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    (reg_a, reg_b, reg_c) = get_three_regs(instruction);
                     self.cpu.add(reg_a, reg_b, reg_c)
                 }
                 o if o == Opcode::Mul as u32 => {
-                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    (reg_a, reg_b, reg_c) = get_three_regs(instruction);
                     self.cpu.mul(reg_a, reg_b, reg_c)
                 }
                 o if o == Opcode::Div as u32 => {
-                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    (reg_a, reg_b, reg_c) = get_three_regs(instruction);
                     self.cpu.div(reg_a, reg_b, reg_c)
                 }
                 o if o == Opcode::Nand as u32 => {
-                    let (reg_a, reg_b, reg_c) = get_three_regs(instruction);
+                    (reg_a, reg_b, reg_c) = get_three_regs(instruction);
                     self.cpu.nand(reg_a, reg_b, reg_c)
                 }
                 o if o == Opcode::Halt as u32 => {
                     std::process::exit(0);
                 }
                 o if o == Opcode::Map as u32 => {
-                    let (reg_b, reg_c) = get_two_regs(instruction);
-                    let size = self.cpu.fetch_reg(reg_c) as usize;
+                    (reg_b, reg_c) = get_two_regs(instruction);
+                    size = self.cpu.fetch_reg(reg_c) as usize;
                     let ptr = self.memory.map_seg(size) as u32;
                     self.cpu.load_value(reg_b, ptr);
                 }
                 o if o == Opcode::Unmap as u32 => {
-                    let reg_c = get_one_reg(instruction);
+                    reg_c = get_one_reg(instruction);
                     let ptr = self.cpu.fetch_reg(reg_c) as usize;
                     self.memory.unmap_seg(ptr);
                 }
                 o if o == Opcode::Output as u32 => {
-                    let reg_c = get_one_reg(instruction);
-                    let value = self.cpu.fetch_reg(reg_c);
+                    reg_c = get_one_reg(instruction);
+                    value = self.cpu.fetch_reg(reg_c);
                     self.output(value);
                 }
                 o if o == Opcode::Input as u32 => {
-                    let reg_c = get_one_reg(instruction);
-                    let value = self.input();
+                    reg_c = get_one_reg(instruction);
+                    value = self.input();
                     self.cpu.load_value(reg_c, value)
                 }
                 o if o == Opcode::LoadProgram as u32 => {
-                    let (reg_b, reg_c) = get_two_regs(instruction);
-                    let segment = self.cpu.fetch_reg(reg_b) as usize;
-                    let offset = self.cpu.fetch_reg(reg_c) as usize;
+                    (reg_b, reg_c) = get_two_regs(instruction);
+                    segment = self.cpu.fetch_reg(reg_b) as usize;
+                    offset = self.cpu.fetch_reg(reg_c) as usize;
                     self.memory.load_program(segment, offset);
                     self.cpu.pc = offset;
                 }
                 o if o == Opcode::LoadValue as u32 => {
-                    let load_reg = get_load_reg(instruction);
-                    let value = get_value(instruction);
+                    load_reg = get_load_reg(instruction);
+                    value = get_value(instruction);
                     self.cpu.load_value(load_reg, value);
                 }
                 _ => {
