@@ -1,8 +1,6 @@
 /// A representation of the memory of a Universal Machine. Segment 0 (`seg0`) contains
 /// the current running program, while `active_segs` contains any other segments
 pub struct RumMemory {
-    // pub seg0: Vec<u32>,
-    // pub active_segs: HashMap<u32, Vec<u32>>,
 
     pub segs: Vec<Vec<u32>>,
     pub available_segs: Vec<u32>,
@@ -17,7 +15,6 @@ impl RumMemory {
     /// # Arguments:
     /// * `program`: a `Vec<u32>` containing the instructions of the program given by the command line.
     pub fn init(program: Vec<u32>) -> Self {
-        //RumMemory { seg0: program, active_segs: HashMap::new() }
         RumMemory { segs: vec![program], available_segs: Vec::new() }
     }
 
@@ -31,7 +28,6 @@ impl RumMemory {
     /// * `segnum`: The segment being looked for, representing a key in `active_segs`.
     /// * `offset`: The index of the value being extracted.
     pub fn get_seg_val(&mut self, segnum: usize, offset: usize) -> u32 {
-        //*self.get_seg(segnum).get(offset).unwrap()
         *self.segs.get(segnum).unwrap().get(offset).unwrap()
     }
 
@@ -46,7 +42,6 @@ impl RumMemory {
     /// * `offset`: The index where the value will be inserted.
     /// * `value`: The value being stored into a segment.
     pub fn store_seg_val(&mut self, segnum: usize, offset: usize, value: u32) {
-        // let item = self.get_mut_seg(segnum).get_mut(offset).unwrap();
 
         let item = self.segs.get_mut(segnum).unwrap().get_mut(offset).unwrap();
 
