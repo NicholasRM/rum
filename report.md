@@ -1,6 +1,7 @@
 # Profiling
 
 ## Starting Code:
+#### No changes
 
 ### Midmark
 - time: 23.718 Seconds
@@ -19,6 +20,7 @@
 - current vs previous: 1.000
 
 ## compiling with lto:
+#### we turned on link time optimization
 
 ### Midmark
 - time: 23.421 Seconds
@@ -37,6 +39,7 @@
 - current vs previous: 1.009
 
 ## removed redundant check (contains):
+#### We removed a call to .contains(), which is a linear time function, from unmap segments and load program
 
 ### Midmark
 - time: 624 ms
@@ -55,6 +58,7 @@
 - current vs previous: 0.017
 
 ## moving definition of variables outside of the loop:
+#### We raised the scope of variables for registers and values to outside of our execution loop
 
 ### Midmark
 - time: 619 ms
