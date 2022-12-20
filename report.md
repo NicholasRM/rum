@@ -7,7 +7,7 @@
 - valgrind instruction count: 296,499,077,764
 
 ### Advent
-- time: did not finish
+- time: did not finish*
 
 ### Sandmark
 - time: 15 Minutes 24.734 Seconds
@@ -19,7 +19,7 @@
 - valgrind instruction count: 296,391,886,525
 
 ### Advent
-- time: did not finish
+- time: did not finish*
 
 ### Sandmark
 - time: 15 Minutes 32.780 Seconds
@@ -47,3 +47,6 @@
 
 ### Sandmark
 - time 15.699 Seconds
+
+### Notes
+- *we ran it for over 20 minutes and it didn't finish
