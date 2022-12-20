@@ -48,5 +48,5 @@
 ### Sandmark
 - time 15.699 Seconds
 
-#### Notes
-- *we ran it for over 20 minutes and it didn't finish
+#### Notes:
+*we ran it for over 20 minutes and it didn't finish
